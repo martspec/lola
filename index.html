@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CeskyWeb - pises cesky, dostanes web</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="horni">
+  <div class="znacka">Cesky<b>Web</b><span class="verze">v0.2</span></div>
+  <div class="nastroje">
+    <select id="vyber-prikladu" title="Ukazkove programy"></select>
+    <button id="btn-novy" class="tlacitko" title="Vymaze editor a zacnes psat od nuly">Novy kod</button>
+    <button id="btn-spustit" class="tlacitko hlavni">Spustit</button>
+    <button id="btn-zip" class="tlacitko">Stahnout ZIP</button>
+    <button id="btn-ulozit" class="tlacitko">Ulozit</button>
+    <button id="btn-nahrat" class="tlacitko">Nahrat soubor</button>
+    <input id="vstup-soubor" type="file" accept=".cesky,.txt,text/plain" hidden>
+    <button id="btn-napoveda" class="tlacitko">Napoveda</button>
+    <button id="btn-ai" class="tlacitko">AI</button>
+  </div>
+</header>
+<div class="prepinac" id="prepinac">
+  <button type="button" class="prepinac-tl vybrany" data-cil="kod">Kod</button>
+  <button type="button" class="prepinac-tl" data-cil="nahlad">Nahled</button>
+</div>
+<main data-mobil="kod">
+  <section class="panel">
+    <div class="panel-hlavicka">
+      <span>Zdrojovy kod</span>
+      <span class="napoveda-klaves">Ctrl+Enter spusti, sipky vyberou, Enter vlozi, Escape zavre</span>
+    </div>
+    <div class="editor-obal" id="editor-obal">
+      <pre id="zvyrazneni" aria-hidden="true"></pre>
+      <textarea id="kod" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" wrap="soft"></textarea>
+      <div id="naseptavac" class="naseptavac" hidden></div>
+    </div>
+    <div id="hlasky" class="hlasky">Zadne chyby. Stiskni Spustit.</div>
+  </section>
+  <section class="panel">
+    <div class="panel-hlavicka">
+      <span>Nahled stranky</span>
+      <span id="stav" class="stav">pripraveno</span>
+    </div>
+    <iframe id="nahlad" title="Nahled stranky" sandbox="allow-scripts allow-modals allow-popups allow-forms"></iframe>
+  </section>
+  <aside id="napoveda" class="panel napoveda" hidden></aside>
+  <aside id="ai" class="panel ai" hidden>
+    <div class="panel-hlavicka">
+      <span>AI pomocnik</span>
+      <span id="ai-stav" class="stav">model neni nacteny</span>
+    </div>
+    <div class="ai-nastaveni">
+      <select id="ai-model" title="Vyber modelu"></select>
+      <button id="ai-nacti" class="tlacitko">Stahnout a spustit</button>
+    </div>
+    <div id="ai-log" class="ai-log"></div>
+    <div class="ai-psani">
+      <textarea id="ai-vstup" rows="2" placeholder="Napis, co chces vytvorit..." disabled></textarea>
+      <button id="ai-posli" class="tlacitko hlavni" disabled>Poslat</button>
+    </div>
+  </aside>
+</main>
+<script src="napoveda.js"></script>
+<script src="zip.js"></script>
+<script src="prekladac.js"></script>
+<script src="editor.js"></script>
+<script src="app.js"></script>
+<script src="ai.js"></script>
+</body>
+</html>

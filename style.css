@@ -1,0 +1,211 @@
+:root{
+  --pozadi:#0e1218;
+  --panel:#151b24;
+  --panel2:#1b2330;
+  --linka:#26303d;
+  --text:#dfe7f1;
+  --muted:#8e9caf;
+  --akcent:#5b9bff;
+  --zelena:#4cc38a;
+  --cervena:#ff6b6b;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{height:100%}
+body{
+  margin:0;height:100%;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+  background:var(--pozadi);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.horni{
+  flex:none;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--linka);
+}
+.znacka{font-weight:700;font-size:16px;letter-spacing:.3px;white-space:nowrap}
+.znacka b{color:var(--akcent)}
+.verze{font-size:11px;font-weight:400;color:var(--muted);margin-left:8px;border:1px solid var(--linka);border-radius:99px;padding:2px 8px}
+.nastroje{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.tlacitko{
+  font:inherit;font-size:13px;cursor:pointer;padding:7px 13px;border-radius:9px;
+  border:1px solid var(--linka);background:var(--panel2);color:var(--text);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.tlacitko:hover{border-color:#3a4757;background:#22303f}
+.tlacitko.hlavni{background:var(--akcent);border-color:var(--akcent);color:#08111f;font-weight:600}
+.tlacitko.hlavni:hover{filter:brightness(1.08);background:var(--akcent)}
+select{
+  font:inherit;font-size:13px;padding:7px 10px;border-radius:9px;max-width:220px;
+  background:var(--panel2);color:var(--text);border:1px solid var(--linka);
+}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.panel{
+  min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--panel);border:1px solid var(--linka);border-radius:12px;
+}
+.panel-hlavicka{
+  flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 12px;font-size:12px;color:var(--muted);
+  background:var(--panel2);border-bottom:1px solid var(--linka);
+}
+.napoveda-klaves{font-size:11px;color:#6f7d90}
+.stav{font-size:11px;padding:2px 9px;border-radius:99px;background:#1d2a1f;color:var(--zelena);border:1px solid #2a3f2e;white-space:nowrap}
+.stav.chyba{background:#2a1c1e;color:var(--cervena);border-color:#43282b}
+
+/* Prepinac Kód / Náhled. Na velkych obrazovkach je skryty, objevi se jen na mobilu. */
+.prepinac{display:none;flex:none;background:var(--panel);border-bottom:1px solid var(--linka)}
+.prepinac-tl{
+  flex:1;font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+  padding:11px 8px;border:0;border-bottom:2px solid transparent;
+  background:transparent;color:var(--muted);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.prepinac-tl.vybrany{color:var(--text);border-bottom-color:var(--akcent)}
+
+.editor-obal{position:relative;flex:1;min-height:0}
+#zvyrazneni,#kod{
+  position:absolute;inset:0;margin:0;padding:14px 16px;border:0;
+  font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:14px;line-height:1.55;
+  white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;tab-size:2;
+  scrollbar-width:thin;scrollbar-color:#37445a transparent;
+}
+#zvyrazneni{overflow-y:scroll;overflow-x:hidden;color:#cfd8e3;pointer-events:none;z-index:1}
+#kod{
+  z-index:2;background:transparent;color:transparent;caret-color:#8bd450;
+  resize:none;outline:none;overflow-y:scroll;overflow-x:hidden;
+}
+#kod::selection{background:rgba(91,155,255,.35)}
+#zvyrazneni::-webkit-scrollbar,#kod::-webkit-scrollbar{width:10px;height:10px}
+#zvyrazneni::-webkit-scrollbar-thumb,#zvyrazneni::-webkit-scrollbar-track{background:transparent}
+#kod::-webkit-scrollbar-track{background:transparent}
+#kod::-webkit-scrollbar-thumb{background:#37445a;border-radius:99px}
+
+.t-kom{color:#5d7288;font-style:italic}
+.t-str{color:#9fd88a}
+.t-id{color:#f0a26b}
+.t-sipka{color:#c792ea}
+.t-cis{color:#e5c07b}
+.t-klic{color:#6cb6ff;font-weight:600}
+
+.naseptavac{
+  position:absolute;z-index:5;min-width:240px;max-width:420px;max-height:210px;overflow:auto;
+  background:#101720;border:1px solid #33415480;border-radius:10px;
+  box-shadow:0 14px 34px rgba(0,0,0,.55);padding:4px;
+  -webkit-overflow-scrolling:touch;
+}
+.nabidka{display:flex;flex-direction:column;gap:1px;padding:8px;border-radius:7px;cursor:pointer}
+.nabidka b{font-size:13px;color:var(--akcent);font-family:Consolas,Menlo,monospace;font-weight:600}
+.nabidka span{font-size:11px;color:var(--muted);line-height:1.3}
+.nabidka.vybrana{background:#1d2b3d}
+
+.hlasky{
+  flex:none;padding:8px 12px;font-size:12px;line-height:1.5;color:var(--muted);
+  background:#121820;border-top:1px solid var(--linka);max-height:120px;overflow:auto;
+}
+.hlasky.chyba{color:#ffb4b4;background:#1d1416}
+.hlasky .varovani{color:#f0c674}
+.hlasky .cislo{color:#f0a26b;font-weight:600}
+#nahlad{flex:1;width:100%;border:0;background:#ffffff}
+
+.napoveda{overflow:auto;padding:0;-webkit-overflow-scrolling:touch}
+.napoveda-obsah{padding:14px 16px 30px}
+.napoveda-obsah h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.napoveda-obsah h3:first-child{margin-top:0}
+.napoveda-obsah p{margin:0 0 8px;font-size:12.5px;line-height:1.6;color:#b9c4d2}
+.napoveda-obsah table{border-collapse:collapse;width:100%}
+.napoveda-obsah td{padding:3px 6px 3px 0;font-size:12px;vertical-align:top;color:#b9c4d2}
+.napoveda-obsah td:first-child{white-space:nowrap}
+.napoveda-obsah code{
+  font-family:Consolas,Menlo,monospace;font-size:11.5px;
+  background:#0e141c;border:1px solid var(--linka);border-radius:6px;padding:1px 6px;color:#8fc7ff;
+}
+.napoveda-obsah td.ukazka code{color:#9fd88a}
+.barvy code{color:#f0a26b;margin:0 3px 3px 0;display:inline-block}
+
+.ai{overflow:hidden}
+.ai-nastaveni{
+  flex:none;display:flex;gap:6px;padding:8px 10px;
+  background:#121820;border-bottom:1px solid var(--linka);
+}
+.ai-nastaveni select{flex:1;min-width:0;font-size:12px;max-width:none}
+.ai-nastaveni .tlacitko{font-size:12px;padding:6px 10px;white-space:nowrap;flex:none}
+.ai-pozor{
+  flex:none;padding:8px 12px;font-size:11.5px;line-height:1.5;
+  color:#ffd8a8;background:#2a2114;border-bottom:1px solid #3d3220;
+}
+.ai-log{flex:1;min-height:0;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+.ai-zprava{display:flex;flex-direction:column;align-items:flex-start}
+.ai-zprava.ja{align-items:flex-end}
+.ai-bublina{
+  max-width:100%;padding:8px 11px;border-radius:11px;
+  font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:12.5px;line-height:1.55;
+  white-space:pre-wrap;overflow-wrap:break-word;
+  background:#1d2635;border:1px solid var(--linka);color:#cfd8e3;
+}
+.ai-zprava.ja .ai-bublina{background:#22344d;border-color:#2f4664;color:#dfe7f1}
+.ai-vlozit{margin-top:6px;font-size:12px;padding:5px 10px}
+.ai-psani{
+  flex:none;display:flex;gap:6px;padding:8px 10px;
+  background:#121820;border-top:1px solid var(--linka);
+}
+.ai-psani textarea{
+  flex:1;min-width:0;resize:none;font:inherit;font-size:12.5px;padding:8px 10px;border-radius:9px;
+  background:#0e141c;color:var(--text);border:1px solid var(--linka);
+}
+.ai-psani textarea:disabled{opacity:.5}
+.ai-psani .tlacitko{white-space:nowrap;flex:none}
+.ai .panel-hlavicka .stav{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Na sirokych obrazovkach se treti panel vejde vedle editoru. */
+@media (min-width:901px){
+  main.s-panelem{grid-template-columns:1fr 1fr 380px}
+}
+
+/* ---------------------------------------------------------------- mobil a tablet */
+@media (max-width:900px){
+  /* Hlavicka: znacka na prvnim radku, nastroje v jednom vodorovnem pruhu. */
+  .horni{gap:8px;padding:8px 10px}
+  .znacka{font-size:15px}
+  .verze{margin-left:6px}
+  .nastroje{
+    margin-left:0;width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+    gap:6px;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .nastroje::-webkit-scrollbar{display:none}
+  .nastroje>*{flex:none}
+  .nastroje select{max-width:none;min-width:150px}
+  .nastroje .tlacitko{padding:9px 12px;font-size:12.5px}
+
+  .prepinac{display:flex}
+
+  /* Jeden sloupec, viditelny je vzdy jen jeden panel. */
+  main{position:relative;grid-template-columns:1fr;grid-template-rows:1fr;gap:8px;padding:8px}
+  main>section{min-height:0}
+  main[data-mobil="kod"]>section:nth-child(2){display:none}
+  main[data-mobil="nahlad"]>section:nth-child(1){display:none}
+
+  /* Napoveda a AI prekryji jen pracovni plochu, takze tlacitko v hlavicce zustava poradku. */
+  #napoveda,#ai{position:absolute;inset:0;z-index:40;border-radius:12px}
+  .prepinac{order:-1}
+  body:has(#napoveda:not([hidden])) .prepinac,
+  body:has(#ai:not([hidden])) .prepinac{display:none}
+
+  .napoveda-klaves{display:none}
+  .napoveda-obsah{padding:12px 14px 26px}
+
+  /* Pismo v polich aspon 16px, jinak iOS pri klepnuti do pole zvetsi celou stranku. */
+  #zvyrazneni,#kod{font-size:16px;padding:12px 14px}
+  .ai-psani textarea{font-size:16px}
+
+  .naseptavac{min-width:0;max-width:calc(100vw - 28px);max-height:38vh}
+  .hlasky{max-height:86px;font-size:11.5px}
+}
+
+@media (max-width:560px){
+  .znacka{font-size:14px}
+  .verze{display:none}
+  .nastroje .tlacitko{padding:9px 11px}
+  .prepinac-tl{padding:12px 8px}
+  .panel-hlavicka{padding:7px 10px}
+  main{gap:6px;padding:6px}
+}
