@@ -105,9 +105,17 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
 .hlasky.chyba{color:#ffb4b4;background:#1d1416}
 .hlasky .varovani{color:#f0c674}
 .hlasky .cislo{color:#f0a26b;font-weight:600}
+.hlasky .uvod{margin:0 0 5px;font-weight:600}
 #nahlad{flex:1;width:100%;border:0;background:#ffffff}
 
-.napoveda{overflow:auto;padding:0;-webkit-overflow-scrolling:touch}
+.napoveda{overflow:hidden;padding:0}
+.napoveda-telo{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+.zavrit{
+  font:inherit;font-size:14px;line-height:1;cursor:pointer;padding:4px 8px;border-radius:7px;
+  border:1px solid var(--linka);background:var(--panel);color:var(--muted);flex:none;
+}
+.zavrit:hover{border-color:#3a4757;background:#22303f;color:var(--text)}
+.panel-stav{display:flex;align-items:center;gap:8px;min-width:0}
 .napoveda-obsah{padding:14px 16px 30px}
 .napoveda-obsah h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
 .napoveda-obsah h3:first-child{margin-top:0}
@@ -176,19 +184,12 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
   .nastroje select{max-width:none;min-width:150px}
   .nastroje .tlacitko{padding:9px 12px;font-size:12.5px}
 
-  .prepinac{display:flex}
-
-  /* Jeden sloupec, viditelny je vzdy jen jeden panel. */
-  main{position:relative;grid-template-columns:1fr;grid-template-rows:1fr;gap:8px;padding:8px}
+  /* Pod sebou, ale videt jsou porad oba - editor i nahled. */
+  main{position:relative;grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:8px;padding:8px}
   main>section{min-height:0}
-  main[data-mobil="kod"]>section:nth-child(2){display:none}
-  main[data-mobil="nahlad"]>section:nth-child(1){display:none}
 
   /* Napoveda a AI prekryji jen pracovni plochu, takze tlacitko v hlavicce zustava poradku. */
   #napoveda,#ai{position:absolute;inset:0;z-index:40;border-radius:12px}
-  .prepinac{order:-1}
-  body:has(#napoveda:not([hidden])) .prepinac,
-  body:has(#ai:not([hidden])) .prepinac{display:none}
 
   .napoveda-klaves{display:none}
   .napoveda-obsah{padding:12px 14px 26px}
@@ -199,6 +200,16 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
 
   .naseptavac{min-width:0;max-width:calc(100vw - 28px);max-height:38vh}
   .hlasky{max-height:86px;font-size:11.5px}
+}
+
+/* Na telefonu se oba panely nevejdou nad sebe - prepina se mezi nimi. */
+@media (max-width:700px){
+  .prepinac{display:flex}
+  main{grid-template-rows:1fr}
+  main[data-mobil="kod"]>section:nth-child(2){display:none}
+  main[data-mobil="nahlad"]>section:nth-child(1){display:none}
+  body:has(#napoveda:not([hidden])) .prepinac,
+  body:has(#ai:not([hidden])) .prepinac{display:none}
 }
 
 @media (max-width:560px){

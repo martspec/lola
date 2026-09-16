@@ -4,15 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CeskyWeb - pises cesky, dostanes web</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <header class="horni">
   <div class="znacka">Cesky<b>Web</b><span class="verze">v0.2</span></div>
   <div class="nastroje">
-    <select id="vyber-prikladu" title="Ukazkove programy"></select>
     <button id="btn-novy" class="tlacitko" title="Vymaze editor a zacnes psat od nuly">Novy kod</button>
-    <button id="btn-spustit" class="tlacitko hlavni">Spustit</button>
     <button id="btn-zip" class="tlacitko">Stahnout ZIP</button>
     <button id="btn-ulozit" class="tlacitko">Ulozit</button>
     <button id="btn-nahrat" class="tlacitko">Nahrat soubor</button>
@@ -36,7 +34,7 @@
       <textarea id="kod" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" wrap="soft"></textarea>
       <div id="naseptavac" class="naseptavac" hidden></div>
     </div>
-    <div id="hlasky" class="hlasky">Zadne chyby. Stiskni Spustit.</div>
+    <div id="hlasky" class="hlasky">Kod se preklada sam, jak ho pises.</div>
   </section>
   <section class="panel">
     <div class="panel-hlavicka">
@@ -45,11 +43,20 @@
     </div>
     <iframe id="nahlad" title="Nahled stranky" sandbox="allow-scripts allow-modals allow-popups allow-forms"></iframe>
   </section>
-  <aside id="napoveda" class="panel napoveda" hidden></aside>
+  <aside id="napoveda" class="panel napoveda" hidden>
+    <div class="panel-hlavicka">
+      <span>Napoveda</span>
+      <button type="button" id="zavrit-napoveda" class="zavrit" title="Zavrit napovedu" aria-label="Zavrit napovedu">&#10005;</button>
+    </div>
+    <div class="napoveda-telo" id="napoveda-obsah"></div>
+  </aside>
   <aside id="ai" class="panel ai" hidden>
     <div class="panel-hlavicka">
       <span>AI pomocnik</span>
-      <span id="ai-stav" class="stav">model neni nacteny</span>
+      <span class="panel-stav">
+        <span id="ai-stav" class="stav">model neni nacteny</span>
+        <button type="button" id="zavrit-ai" class="zavrit" title="Zavrit AI" aria-label="Zavrit AI">&#10005;</button>
+      </span>
     </div>
     <div class="ai-nastaveni">
       <select id="ai-model" title="Vyber modelu"></select>
@@ -62,11 +69,11 @@
     </div>
   </aside>
 </main>
-<script src="napoveda.js"></script>
-<script src="zip.js"></script>
-<script src="prekladac.js"></script>
-<script src="editor.js"></script>
-<script src="app.js"></script>
-<script src="ai.js"></script>
+<script src="napoveda.js?v=9"></script>
+<script src="zip.js?v=9"></script>
+<script src="prekladac.js?v=9"></script>
+<script src="editor.js?v=9"></script>
+<script src="app.js?v=9"></script>
+<script src="ai.js?v=9"></script>
 </body>
 </html>

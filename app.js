@@ -3,12 +3,9 @@
   'use strict';
 
   const KLIC_KOD = 'ceskyweb.kod';
-  const KLIC_PRIKLAD = 'ceskyweb.priklad';
 
   const $ = function (id) { return document.getElementById(id); };
-  const vyberPrikladu = $('vyber-prikladu');
   const btnNovy = $('btn-novy');
-  const btnSpustit = $('btn-spustit');
   const btnZip = $('btn-zip');
   const btnUlozit = $('btn-ulozit');
   const btnNahrat = $('btn-nahrat');
@@ -36,15 +33,9 @@
 
   // Prazdna stranka - pro zacatek od nuly, bez ukazkoveho programu.
   const PRAZDNY_KOD = [
-    '// Tady pises svuj vlastni web.',
-    '// Radky zacinajici // jsou jen poznamky pro tebe.',
-    '// Tlacitkem Napoveda vpravo nahore najdes vsechny prikazy.',
+    '// Zde pises svuj web. Tlacitkem Napoveda najdes vsechny prikazy.',
     '',
-    'stranka "Muj web"',
-    'vzhled svetly',
-    '',
-    'nadpis Muj web',
-    'text Tady zacni psat.'
+    'stranka "Muj web"'
   ].join('\n');
 
   function esc(s) {
@@ -72,28 +63,29 @@
       html += '<div class="' + (varovani ? 'varovani' : '') + '">' +
         '<span class="cislo">Radek ' + c.radek + ':</span> ' + esc(c.text) + '</div>';
     });
+    if (chyb) {
+      html = '<div class="uvod">Tyto bloky se vynechaly, zbytek stranky funguje:</div>' + html;
+    }
     hlasky.innerHTML = html;
     hlasky.className = chyb ? 'hlasky chyba' : 'hlasky';
     return chyb === 0;
   }
 
   // ------------------------------------------------------------------ spousteni
+  // Kazdy blok kodu je samostatny. Kdyz se jeden nepovede, prekladac ho vynecha
+  // a zbytek stranky se vykresli normalne.
   function spustit() {
     const vysledek = PREKLADAC.preved(Editor.ziskej());
-    if (!ukazChyby(vysledek.chyby)) {
-      nastavStav('chyba v kodu', true);
-      return false;
-    }
+    const bezChyb = ukazChyby(vysledek.chyby);
     nahlad.srcdoc = vysledek.html;
-    nastavStav('v poradku', false);
-    return true;
+    nastavStav(bezChyb ? 'v poradku' : 'nektere bloky vynechany', !bezChyb);
+    return bezChyb;
   }
 
   // ------------------------------------------------------------------ ukladani
   function uloz() {
     try {
       window.localStorage.setItem(KLIC_KOD, Editor.ziskej());
-      window.localStorage.setItem(KLIC_PRIKLAD, vyberPrikladu.value);
     } catch (e) {
       /* prohlizec muze ukladani blokovat - kod pak zustane jen v okne */
     }
@@ -110,17 +102,15 @@
   // ------------------------------------------------------------------ export do ZIP
   function stahniZip() {
     const vysledek = PREKLADAC.preved(Editor.ziskej());
-    if (!ukazChyby(vysledek.chyby)) {
-      nastavStav('chyba v kodu', true);
-      return;
-    }
+    // Stahuje se vzdy. Chybne bloky jsou ve stazenem webu proste vynechane.
+    const bezChyb = ukazChyby(vysledek.chyby);
     const soubory = [
       { nazev: 'index.html', obsah: vysledek.html },
       { nazev: 'zdroj.cesky', obsah: Editor.ziskej() },
       { nazev: 'navod.txt', obsah: NAVOD }
     ];
     ZIP.stahni(ZIP.vytvor(soubory), 'web.zip');
-    nastavStav('ZIP je stazeny', false);
+    nastavStav(bezChyb ? 'ZIP je stazeny' : 'ZIP je stazeny, nektere bloky chybi', !bezChyb);
   }
 
   // ------------------------------------------------------------------ napoveda
@@ -128,8 +118,7 @@
     if (typeof NAPOVEDA === 'undefined') return;
     let html = '<div class="napoveda-obsah">';
     html += '<h3>Jak psat</h3>';
-    html += '<p>Chces zacit od nuly? Stiskni nahore <code>Novy kod</code> - editor se vymaze ' +
-      'a pises vlastni stranku. Ukazkove programy mas v rozbalovacim seznamu vlevo.</p>';
+    html += '<p>Stiskni nahore <code>Novy kod</code> - editor se vymaze a zacnes psat vlastni stranku od nuly.</p>';
     html += '<p>Kazdy radek zacina prikazem. U nazvu, textu a odrazek uvozovky psat nemusis. ' +
       'Znak <code>#</code> znamena prvek na strance, <code>$</code> je promenna.</p>';
     html += '<p>Jak pises, naseptavac se sam nabizi - prikazy, barvy i hodnoty. ' +
@@ -170,7 +159,10 @@
       '<tr><td><code>Tab</code></td><td>Vlozi nabidku, jinak odsadi radek</td></tr>' +
       '</table>';
     html += '</div>';
-    napoveda.innerHTML = html;
+    // Napoveda ma vlastni hlavicku s krizkem, obsah se plni do jejiho tela.
+    const teloNapovedy = document.getElementById('napoveda-obsah');
+    if (teloNapovedy) teloNapovedy.innerHTML = html;
+    else napoveda.innerHTML = html;
   }
 
   function prepniNapovedu() {
@@ -194,13 +186,26 @@
   }
 
   // ------------------------------------------------------------------ udalosti
-  btnSpustit.addEventListener('click', spustit);
   btnZip.addEventListener('click', stahniZip);
   btnUlozit.addEventListener('click', function () {
     uloz();
     nastavStav('ulozeno', false);
   });
   btnNapoveda.addEventListener('click', prepniNapovedu);
+
+  // Krizek v panelu udela to same jako kliknuti na prislusne tlacitko v horni liste.
+  function napojZavrit(idTlacitka, idPanelu, idPrepinace) {
+    const tl = document.getElementById(idTlacitka);
+    if (!tl) return;
+    tl.addEventListener('click', function () {
+      const panel = document.getElementById(idPanelu);
+      if (panel && panel.hasAttribute('hidden')) return;
+      const btn = document.getElementById(idPrepinace);
+      if (btn) btn.click();
+    });
+  }
+  napojZavrit('zavrit-napoveda', 'napoveda', 'btn-napoveda');
+  napojZavrit('zavrit-ai', 'ai', 'btn-ai');
   btnNahrat.addEventListener('click', function () { vstupSoubor.click(); });
 
   vstupSoubor.addEventListener('change', function () {
@@ -220,7 +225,6 @@
   // Naplni editor prazdnou strankou a necha cloveka psat od nuly.
   function zacniPrazdno() {
     Editor.nastav(PRAZDNY_KOD);
-    vyberPrikladu.value = '';
     spustit();
     uloz();
     nastavStav('prazdna stranka', false);
@@ -230,16 +234,6 @@
     const ted = Editor.ziskej();
     if (ted && ted !== PRAZDNY_KOD && !window.confirm('Vymazat kod a zacit od nuly?')) return;
     zacniPrazdno();
-  });
-
-  vyberPrikladu.addEventListener('change', function () {
-    const volba = vyberPrikladu.value;
-    if (volba === '') { zacniPrazdno(); return; }
-    const priklad = NAPOVEDA.priklady[Number(volba)];
-    if (!priklad) return;
-    Editor.nastav(priklad.kod);
-    spustit();
-    uloz();
   });
 
   // ------------------------------------------- prepinac Kod / Nahled (jen na mobilu)
@@ -273,30 +267,10 @@
   });
 
   // ------------------------------------------------------------------ start
-  const prazdnaVolba = document.createElement('option');
-  prazdnaVolba.value = '';
-  prazdnaVolba.textContent = 'Nova prazdna stranka';
-  vyberPrikladu.appendChild(prazdnaVolba);
-
-  if (typeof NAPOVEDA !== 'undefined' && NAPOVEDA.priklady) {
-    NAPOVEDA.priklady.forEach(function (p, i) {
-      const volba = document.createElement('option');
-      volba.value = String(i);
-      volba.textContent = p.nazev;
-      vyberPrikladu.appendChild(volba);
-    });
-  }
-
+  // Zadne ukazky ani sablony. Vzdy se zacina cistym kodem.
   const ulozenyKod = nacti();
-  if (ulozenyKod && ulozenyKod.length) {
-    Editor.nastav(ulozenyKod);
-    let ulozenyPriklad = '0';
-    try { ulozenyPriklad = window.localStorage.getItem(KLIC_PRIKLAD) || '0'; } catch (e) { ulozenyPriklad = '0'; }
-    vyberPrikladu.value = ulozenyPriklad;
-  } else if (typeof NAPOVEDA !== 'undefined' && NAPOVEDA.priklady && NAPOVEDA.priklady.length) {
-    Editor.nastav(NAPOVEDA.priklady[0].kod);
-    vyberPrikladu.value = '0';
-  }
+  if (ulozenyKod && ulozenyKod.length) Editor.nastav(ulozenyKod);
+  else Editor.nastav(PRAZDNY_KOD);
 
   vykresliNapovedu();
   spustit();
