@@ -7,7 +7,6 @@
   const $ = function (id) { return document.getElementById(id); };
   const btnNovy = $('btn-novy');
   const btnZip = $('btn-zip');
-  const btnUlozit = $('btn-ulozit');
   const btnNahrat = $('btn-nahrat');
   const vstupSoubor = $('vstup-soubor');
   const btnNapoveda = $('btn-napoveda');
@@ -77,7 +76,14 @@
   function spustit() {
     const vysledek = PREKLADAC.preved(Editor.ziskej());
     const bezChyb = ukazChyby(vysledek.chyby);
-    nahlad.srcdoc = vysledek.html;
+    let html = vysledek.html;
+    // Pomocny skript se do nahledu vklada vzdy - obstarava vyber prvku i
+    // prijimani bloku z palety. Do stazeneho webu se nedostane: stahuje se
+    // porad jen cisty vysledek prekladace.
+    if (typeof NahladEdit !== 'undefined' && NahladEdit.vlozPomocnika) {
+      html = NahladEdit.vlozPomocnika(html);
+    }
+    nahlad.srcdoc = html;
     nastavStav(bezChyb ? 'v poradku' : 'nektere bloky vynechany', !bezChyb);
     return bezChyb;
   }
@@ -119,6 +125,11 @@
     let html = '<div class="napoveda-obsah">';
     html += '<h3>Jak psat</h3>';
     html += '<p>Stiskni nahore <code>Novy kod</code> - editor se vymaze a zacnes psat vlastni stranku od nuly.</p>';
+    html += '<p>Vlastni kod vlozis prikazy <code>javascript</code>, <code>html</code> a <code>css</code>. ' +
+      'Vsechno mezi nim a prikazem <code>konec</code> se vlozi do stranky presne tak, jak to napises - ' +
+      'muzes vlozit i cely hotovy JavaScript. Kazdy blok je samostatny, takze kdyz jeden selze, ostatni jedou dal. ' +
+      'Prvek <code>#jmeno</code> ma ve vysledne strance <code>id="cw-jmeno"</code>, takze na nej vlastni ' +
+      'JavaScript dosahne pres <code>document.getElementById("cw-jmeno")</code>.</p>';
     html += '<p>Kazdy radek zacina prikazem. U nazvu, textu a odrazek uvozovky psat nemusis. ' +
       'Znak <code>#</code> znamena prvek na strance, <code>$</code> je promenna.</p>';
     html += '<p>Jak pises, naseptavac se sam nabizi - prikazy, barvy i hodnoty. ' +
@@ -175,6 +186,12 @@
         const btnAi = document.getElementById('btn-ai');
         if (btnAi) btnAi.textContent = 'AI';
       }
+      const blokyPanel = document.getElementById('bloky');
+      if (blokyPanel && !blokyPanel.hasAttribute('hidden')) {
+        blokyPanel.setAttribute('hidden', '');
+        const btnBloky = document.getElementById('btn-bloky');
+        if (btnBloky) btnBloky.textContent = 'Bloky';
+      }
       napoveda.removeAttribute('hidden');
       main.classList.add('s-panelem');
       btnNapoveda.textContent = 'Zavrit napovedu';
@@ -187,10 +204,6 @@
 
   // ------------------------------------------------------------------ udalosti
   btnZip.addEventListener('click', stahniZip);
-  btnUlozit.addEventListener('click', function () {
-    uloz();
-    nastavStav('ulozeno', false);
-  });
   btnNapoveda.addEventListener('click', prepniNapovedu);
 
   // Krizek v panelu udela to same jako kliknuti na prislusne tlacitko v horni liste.
@@ -274,4 +287,7 @@
 
   vykresliNapovedu();
   spustit();
+
+  // Ostatni casti programu potrebuji vedet, kdy prekreslit nahled.
+  window.CeskyWeb = { spustit: spustit, uloz: uloz };
 })();

@@ -148,6 +148,11 @@ const NAPOVEDA = {
     { klic: 'obsahuje-pole', skupina: 'Funkce', popis: 'Vrati 1, kdyz seznam obsahuje hodnotu', ukazka: 'kdyz obsahuje-pole($seznam, "ano") = 1' },
     { klic: 'cislo-text', skupina: 'Funkce', popis: 'Prevede cislo na text', ukazka: 'nastav #v cislo-text(42)' },
     { klic: 'desetinna-cast', skupina: 'Funkce', popis: 'Jen cast za desetinnou carkou', ukazka: 'nastav #v desetinna-cast(3.75)' },
-    { klic: 'znak', skupina: 'Funkce', popis: 'Jeden znak z textu na pozici. Pocita se od nuly', ukazka: 'nastav #v znak("ahoj", 1)' }
+    { klic: 'znak', skupina: 'Funkce', popis: 'Jeden znak z textu na pozici. Pocita se od nuly', ukazka: 'nastav #v znak("ahoj", 1)' },
+
+    // ---- Vlastni kod ----
+    { klic: 'javascript', skupina: 'Vlastni kod', popis: 'Vlozi vlastni JavaScript presne tak, jak je napsany. Ukonci se prikazem konec na samostatnem radku', ukazka: 'javascript', vlozit: 'javascript\n\nkonec', odKonce: 6 },
+    { klic: 'html', skupina: 'Vlastni kod', popis: 'Vlozi vlastni HTML na toto misto stranky. Ukonci se prikazem konec', ukazka: 'html', vlozit: 'html\n\nkonec', odKonce: 6 },
+    { klic: 'css', skupina: 'Vlastni kod', popis: 'Vlozi vlastni CSS styly pro celou stranku a prebije puvodni vzhled. Ukonci se prikazem konec', ukazka: 'css', vlozit: 'css\n\nkonec', odKonce: 6 }
   ]
 };

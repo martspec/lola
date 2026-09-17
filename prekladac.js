@@ -293,16 +293,34 @@ const PREKLADAC = (function () {
     let citac = 0;
     let citacSmycek = 0;
     let radekNyni = '';
+    let radekCislo = 0;
     const komponenty = {};
     const vlozPozadavky = [];
     const stranky = [];
     const castiHtml = [];
     const pouziteStranky = [];
     let maMenu = false;
+    // Vlastni kod uzivatele: bloky javascript / html / css. Radky uvnitr se
+    // sbiraji presne tak, jak je clovek napsal - nic se v nich nezkouma.
+    const uzivatelskeJs = [];
+    const uzivatelskeCss = [];
+    let rawRezim = null;
+    let rawBuf = [];
+    let rawRadek = 0;
 
     function pridej(html) {
+      html = oznacRadek(html);
       if (zasobnik.length) zasobnik[zasobnik.length - 1].html.push(html);
       else telo.push(html);
+    }
+
+    // Ke kazdemu prvku pripise cislo radku, ze ktereho vznikl. Diky tomu pozna
+    // nahled, na ktery radek kodu jsi klikl, a muze zmenit prave ten.
+    function oznacRadek(html) {
+      if (typeof html !== 'string' || html.charAt(0) !== '<' || !radekCislo) return html;
+      const m = /^<([a-zA-Z][a-zA-Z0-9]*)/.exec(html);
+      if (!m) return html;
+      return '<' + m[1] + ' data-cw-radek="' + radekCislo + '"' + html.slice(1 + m[1].length);
     }
 
     // Zbytek radku za prikazem - pro pripad, kdy clovek nepise uvozovky.
@@ -419,7 +437,24 @@ const PREKLADAC = (function () {
 
     for (let cislo = 0; cislo < radky.length; cislo++) {
       const r = cislo + 1;
+      radekCislo = r;
       radekNyni = radky[cislo];
+
+      // Uvnitr bloku vlastniho kodu se radky nesbiraji jako prikazy.
+      if (rawRezim) {
+        if (radekNyni.trim().toLowerCase() === 'konec') {
+          const obsah = rawBuf.join('\n');
+          if (rawRezim === 'javascript') uzivatelskeJs.push(obsah);
+          else if (rawRezim === 'css') uzivatelskeCss.push(obsah);
+          else pridej(obsah);
+          rawBuf = [];
+          rawRezim = null;
+        } else {
+          rawBuf.push(radekNyni);
+        }
+        continue;
+      }
+
       const t = rozdel(radekNyni);
       let spatne = null;
       for (let k = 0; k < t.length; k++) if (t[k].typ === 'chyba') { spatne = t[k]; break; }
@@ -1039,11 +1074,25 @@ const PREKLADAC = (function () {
           pridejKod('__ukazCast(' + JSON.stringify(idStranky) + ');');
           break;
         }
+        case 'javascript':
+        case 'html':
+        case 'css': {
+          if (!jenVeStrance(r)) break;
+          if (rawRezim) { chyba(chyby, r, 'Uvnitr bloku ' + rawRezim + ' uz druhy blok zacit nemuze.'); break; }
+          rawRezim = prikaz;
+          rawBuf = [];
+          rawRadek = r;
+          break;
+        }
         default:
           chyba(chyby, r, 'Prikaz "' + prikaz + '" neznam. Klikni na Napoveda a podivej se na seznam prikazu.');
       }
     }
 
+    if (rawRezim) {
+      chyba(chyby, rawRadek, 'Blok ' + rawRezim + ' z radku ' + rawRadek +
+        ' neni ukonceny. Napis konec na samostatny radek.');
+    }
     if (akceNyni) {
       chyba(chyby, akceNyni.radek, 'Akce "' + akceNyni.nazev + '" neni ukoncena prikazem konec.');
       dokonciAkci();
@@ -1137,13 +1186,25 @@ const PREKLADAC = (function () {
     if (pozadi) styl += 'background:' + pozadi + ';';
     if (barvaTextu) styl += 'color:' + barvaTextu + ';';
 
+    // Vlastni CSS uzivatele jde nakonec, aby mohlo prebit puvodni vzhled.
+    let stylCely = STYL.join('\n');
+    if (uzivatelskeCss.length) stylCely += '\n' + uzivatelskeCss.join('\n');
+
+    // Kazdy blok vlastniho JavaScriptu ma vlastni znacku script.
+    // Kdyz jeden z nich selze, ostatni i cely zbytek stranky funguji dal.
+    let skriptyUzivatele = '';
+    for (let k = 0; k < uzivatelskeJs.length; k++) {
+      skriptyUzivatele += '<script>\n' + uzivatelskeJs[k] + '\n</script>\n';
+    }
+
     const html =
       '<!DOCTYPE html>\n<html lang="cs">\n<head>\n<meta charset="utf-8">\n' +
       '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
       '<title>' + ochrana(nazevStranky) + '</title>\n' +
-      '<style>\n' + STYL.join('\n') + '\n</style>\n</head>\n' +
+      '<style>\n' + stylCely + '\n</style>\n</head>\n' +
       '<body class="' + trida + '"' + (styl ? ' style="' + styl + '"' : '') + '>\n' +
       '<div class="cw-stranka">\n' + obsahStranky + '\n</div>\n' +
+      skriptyUzivatele +
       '<script>\n' + skript + '</script>\n</body>\n</html>\n';
 
     return { html: html, chyby: chyby, nazev: nazevStranky, akce: akceSeznam.map(function (a) { return a.nazev; }) };

@@ -64,10 +64,16 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
 
 .editor-obal{position:relative;flex:1;min-height:0}
 #zvyrazneni,#kod{
-  position:absolute;inset:0;margin:0;padding:14px 16px;border:0;
+  position:absolute;inset:0;margin:0;padding:14px 16px 14px 52px;border:0;
   font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:14px;line-height:1.55;
   white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;tab-size:2;
   scrollbar-width:thin;scrollbar-color:#37445a transparent;
+}
+/* Cislovani radku. Cislo je vlevo v odsazeni, takze text zustava presne pod sebou. */
+.radek{position:relative;min-height:1.55em}
+.radek::before{
+  content:attr(data-cislo);position:absolute;left:-46px;width:36px;text-align:right;
+  color:#4e5f74;pointer-events:none;
 }
 #zvyrazneni{overflow-y:scroll;overflow-x:hidden;color:#cfd8e3;pointer-events:none;z-index:1}
 #kod{
@@ -164,6 +170,108 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
 .ai-psani .tlacitko{white-space:nowrap;flex:none}
 .ai .panel-hlavicka .stav{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* ---------------------------------------------------------------- skladacka bloku */
+.bloky{overflow:hidden}
+.bloky-paleta{
+  flex:none;max-height:38%;overflow:auto;padding:10px;
+  background:#121820;border-bottom:1px solid var(--linka);
+  -webkit-overflow-scrolling:touch;
+}
+.paleta-skupina{
+  font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 6px;
+}
+.paleta-skupina:not(:first-child){margin-top:12px}
+.paleta-rada{display:flex;flex-wrap:wrap;gap:5px}
+.paleta-dlazdice{
+  font:inherit;font-size:12px;cursor:pointer;padding:6px 10px;border-radius:8px;
+  border:1px solid var(--linka);background:var(--panel2);color:var(--text);
+  -webkit-tap-highlight-color:transparent;touch-action:none;
+}
+.paleta-dlazdice:hover{border-color:#3a4757;background:#22303f;color:#8fc7ff}
+.bloky-seznam{flex:1;min-height:0;overflow:auto;padding:10px;-webkit-overflow-scrolling:touch}
+.blok-prazdno{margin:0;padding:14px;font-size:12.5px;line-height:1.6;color:var(--muted);text-align:center}
+.blok-karta{
+  display:flex;align-items:stretch;gap:0;margin:0 0 8px;
+  background:var(--panel2);border:1px solid var(--linka);border-radius:10px;overflow:hidden;
+}
+.blok-karta:hover{border-color:#3a4757}
+.blok-karta.tahne{opacity:.45}
+.blok-uchyt{
+  flex:none;cursor:grab;padding:0 9px;border:0;border-right:1px solid var(--linka);
+  background:#1a2230;display:flex;flex-direction:column;justify-content:center;gap:3px;
+  touch-action:none;align-items:center;
+}
+.blok-uchyt span{display:block;width:11px;height:2px;background:#54637a}
+.blok-uchyt:hover span{background:var(--akcent)}
+.blok-telo{flex:1;min-width:0;padding:8px 8px;display:flex;flex-direction:column;gap:2px}
+.blok-telo b{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--akcent)}
+.blok-telo code{
+  font-family:Consolas,Menlo,monospace;font-size:12px;color:#cfd8e3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.blok-telo i{font-size:10.5px;font-style:normal;color:var(--muted)}
+.blok-ovladani{flex:none;display:flex;flex-direction:column;border-left:1px solid var(--linka)}
+.blok-tl{
+  flex:1;font:inherit;font-size:10px;cursor:pointer;border:0;background:transparent;
+  color:var(--muted);padding:0 9px;min-height:22px;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.blok-tl:hover{background:#22303f;color:var(--text)}
+.blok-vlozeni{height:3px;margin:2px 0 6px;border-radius:99px;background:var(--akcent)}
+
+/* Paleta: dlazdice s nakreslenou ukazkou bloku a jeho nazvem. */
+.bloky-tip{margin:0;padding:9px 12px;font-size:11.5px;line-height:1.45;color:var(--muted);background:#121820;border-bottom:1px solid var(--linka)}
+.paleta-dlazdice{
+  display:flex;flex-direction:column;gap:6px;width:106px;min-height:76px;
+  padding:8px;cursor:grab;background:var(--panel2);
+  border:1px solid var(--linka);border-radius:10px;
+  -webkit-tap-highlight-color:transparent;
+}
+.paleta-dlazdice:hover{border-color:#3a4757;background:#22303f}
+.paleta-dlazdice:active{cursor:grabbing}
+.paleta-dlazdice.tahne{opacity:.45}
+.paleta-nazev{font-size:10.5px;line-height:1.2;color:var(--muted);text-align:center}
+.vzorek{flex:1;display:flex;align-items:center;justify-content:center;min-height:34px;overflow:hidden}
+
+/* Nakreslene ukazky. Slouzi jen k nahledu v palete, do stranky se nedostanou. */
+.vz-nadpis{font-size:16px;font-weight:700;color:var(--text)}
+.vz-podnadpis{font-size:13px;font-weight:600;color:var(--text)}
+.vz-text{font-size:9px;line-height:1.3;color:var(--muted);text-align:center}
+.vz-tlacitko{font-size:10px;font-weight:600;padding:4px 10px;border-radius:6px;background:var(--akcent);color:#08111f}
+.vz-odkaz{font-size:10px;color:var(--akcent);text-decoration:underline}
+.vz-obrazek{width:34px;height:24px;border-radius:4px;background:#2b3648;border:1px solid var(--linka)}
+.vz-pole{display:inline-block;font-size:9px;padding:4px 7px;border-radius:5px;background:#0e141c;border:1px solid var(--linka);color:var(--muted)}
+.vz-sipka::after{content:" v"}
+.vz-volba{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--muted)}
+.vz-volba i{display:block;width:10px;height:10px;border-radius:3px;border:1px solid var(--linka);background:#0e141c}
+.vz-seznam{display:flex;flex-direction:column;gap:4px}
+.vz-seznam i{display:block;width:38px;height:4px;border-radius:99px;background:#3a4757}
+.vz-karta{display:block;width:56px;height:32px;border-radius:8px;background:var(--panel2);border:1px solid var(--linka)}
+.vz-blok{display:block;width:42px;height:30px;border-left:3px solid var(--akcent);background:#1b2330}
+.vz-platno{display:block;width:44px;height:30px;border-radius:4px;background:#ffffff;border:1px solid #cdd7e6}
+.vz-menu{display:flex;gap:5px}
+.vz-menu i{display:block;width:14px;height:6px;border-radius:99px;background:var(--akcent)}
+.vz-zalozka{display:block;width:30px;height:14px;border-radius:4px 4px 0 0;background:var(--panel2);border:1px solid var(--linka);border-bottom:0}
+.vz-linka{display:block;width:44px;height:1px;background:var(--linka)}
+.vz-mezera{display:block;width:24px;height:16px}
+.vz-kod{
+  font-family:Consolas,Menlo,monospace;font-size:10px;font-weight:600;
+  padding:4px 8px;border-radius:5px;background:#0e141c;border:1px solid var(--linka);color:#8fc7ff;
+}
+body.tahnu{cursor:grabbing}
+
+/* Mala tlacitka a lista pro upravy primo v nahledu. */
+.tlacitko.maly{font-size:12px;padding:5px 10px}
+.tlacitko.zapnuty{background:var(--akcent);border-color:var(--akcent);color:#08111f;font-weight:600}
+.upravy{
+  flex:none;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  padding:8px 12px;background:#121820;border-bottom:1px solid var(--linka);
+}
+.upravy-popis{
+  flex:1;min-width:110px;font-size:12px;color:#9fd88a;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
 /* Na sirokych obrazovkach se treti panel vejde vedle editoru. */
 @media (min-width:901px){
   main.s-panelem{grid-template-columns:1fr 1fr 380px}
@@ -176,8 +284,8 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
   .znacka{font-size:15px}
   .verze{margin-left:6px}
   .nastroje{
-    margin-left:0;width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
-    gap:6px;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+	margin-left:0;width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+	gap:6px;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
   }
   .nastroje::-webkit-scrollbar{display:none}
   .nastroje>*{flex:none}
@@ -189,13 +297,14 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
   main>section{min-height:0}
 
   /* Napoveda a AI prekryji jen pracovni plochu, takze tlacitko v hlavicce zustava poradku. */
-  #napoveda,#ai{position:absolute;inset:0;z-index:40;border-radius:12px}
+  #napoveda,#ai,#bloky{position:absolute;inset:0;z-index:40;border-radius:12px}
+  .bloky-paleta{max-height:32%}
 
   .napoveda-klaves{display:none}
   .napoveda-obsah{padding:12px 14px 26px}
 
   /* Pismo v polich aspon 16px, jinak iOS pri klepnuti do pole zvetsi celou stranku. */
-  #zvyrazneni,#kod{font-size:16px;padding:12px 14px}
+  #zvyrazneni,#kod{font-size:16px;padding:12px 14px 12px 50px}
   .ai-psani textarea{font-size:16px}
 
   .naseptavac{min-width:0;max-width:calc(100vw - 28px);max-height:38vh}
@@ -209,6 +318,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;pad
   main[data-mobil="kod"]>section:nth-child(2){display:none}
   main[data-mobil="nahlad"]>section:nth-child(1){display:none}
   body:has(#napoveda:not([hidden])) .prepinac,
+  body:has(#bloky:not([hidden])) .prepinac,
   body:has(#ai:not([hidden])) .prepinac{display:none}
 }
 

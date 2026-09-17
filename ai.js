@@ -259,6 +259,12 @@
     const skryta = panel.hasAttribute('hidden');
     if (skryta) {
       zavriNapovedu();
+      const blokyPanel = $('bloky');
+      if (blokyPanel && !blokyPanel.hasAttribute('hidden')) {
+        blokyPanel.setAttribute('hidden', '');
+        const btnBloky = $('btn-bloky');
+        if (btnBloky) btnBloky.textContent = 'Bloky';
+      }
       panel.removeAttribute('hidden');
       if (hlavni) hlavni.classList.add('s-panelem');
       btnAi.textContent = 'Zavrit AI';

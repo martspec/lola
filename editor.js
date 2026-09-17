@@ -28,7 +28,14 @@ const Editor = (function () {
   let RE = null;
   let nabidky = [];
   let vybrana = -1;
-  let zmenaCallback = null;
+  // Posluchacu zmeny muze byt vic - kazda cast editoru si registruje svuj.
+  const zmenaCallbacky = [];
+
+  function oznam() {
+    for (let i = 0; i < zmenaCallbacky.length; i++) {
+      try { zmenaCallbacky[i](); } catch (e) { /* jeden posluchac nesmi shodit ostatni */ }
+    }
+  }
 
   // Hodnoty, ktere se nabizeji po prikazu.
   // Kdyz napises "vzhled " (i s mezerou), nabidnou se svetly / tmavy / barevny / minimal.
@@ -40,6 +47,14 @@ const Editor = (function () {
 
   // Prikazy, po kterych ma smysl nabizet barvy.
   const PRIKAZY_S_BARVOU = ['barva-pozadi', 'barva-textu', 'obarvi'];
+
+  // Prikazy, za kterymi uz nasleduje jen obycejny text - nazev stranky, veta, popisek.
+  // Tam se nic nenabizi, protoze clovek tam pise normalni slova, ne prikazy.
+  const PROZOVE = [
+    'stranka', 'nadpis', 'podnadpis', 'text', 'polozka', 'moznost',
+    'tlacitko', 'odkaz', 'obrazek', 'vstup', 'cislo', 'zaskrtavatko',
+    'komponenta', 'vloz', 'podstranka'
+  ];
 
   function ochrana(s) {
     const A = String.fromCharCode(38);
@@ -68,16 +83,15 @@ const Editor = (function () {
     );
   }
 
-  function obarvi() {
-    if (!RE) postavRe();
-    const kod = ta.value;
+  // Kazdy radek se zvyraznuje zvlast a dostane svoje cislo.
+  function zvyrazni(radek) {
     RE.lastIndex = 0;
     let out = '';
     let posledni = 0;
     let m;
-    while ((m = RE.exec(kod)) !== null) {
+    while ((m = RE.exec(radek)) !== null) {
       if (m[0] === '') { RE.lastIndex++; continue; }
-      out += ochrana(kod.slice(posledni, m.index));
+      out += ochrana(radek.slice(posledni, m.index));
       if (m[1]) out += '<span class="t-kom">' + ochrana(m[1]) + '</span>';
       else if (m[2]) out += '<span class="t-str">' + ochrana(m[2]) + '</span>';
       else if (m[3]) out += '<span class="t-id">' + ochrana(m[3]) + '</span>';
@@ -87,7 +101,17 @@ const Editor = (function () {
       else if (m[7]) out += '<span class="t-klic">' + ochrana(m[7]) + '</span>';
       posledni = m.index + m[0].length;
     }
-    out += ochrana(kod.slice(posledni));
+    out += ochrana(radek.slice(posledni));
+    return out;
+  }
+
+  function obarvi() {
+    if (!RE) postavRe();
+    const radky = ta.value.split('\n');
+    let out = '';
+    for (let i = 0; i < radky.length; i++) {
+      out += '<div class="radek" data-cislo="' + (i + 1) + '">' + zvyrazni(radky[i]) + '</div>';
+    }
     pre.innerHTML = out;
     pre.scrollTop = ta.scrollTop;
   }
@@ -193,7 +217,26 @@ const Editor = (function () {
     return vysledek.map(function (x) { return x.n; }).slice(0, omez || 10);
   }
 
+  // Jsme uvnitr bloku vlastniho kodu (javascript / html / css)?
+  // Tam clovek pise svuj kod, takze se nic nenabizi.
+  function jsmeVRaw() {
+    const pred = ta.value.slice(0, ta.selectionStart);
+    const radky = pred.split('\n');
+    let vRaw = false;
+    for (let i = 0; i < radky.length - 1; i++) {
+      const s = radky[i].trim().toLowerCase();
+      if (vRaw) {
+        if (s === 'konec') vRaw = false;
+        continue;
+      }
+      const prvni = s.split(/\s+/)[0];
+      if (prvni === 'javascript' || prvni === 'html' || prvni === 'css') vRaw = true;
+    }
+    return vRaw;
+  }
+
   function spoctiNabidky() {
+    if (jsmeVRaw()) return [];
     const k = kontext();
     const f = k.fragment;
 
@@ -230,9 +273,18 @@ const Editor = (function () {
       }).filter(function (n) { return n.klic.indexOf(f.toLowerCase()) === 0; });
     }
 
-    const prikazy = ((typeof NAPOVEDA !== 'undefined' && NAPOVEDA.prikazy) || []).map(function (p) {
-      return { klic: p.klic, popis: p.popis, vlozit: p.vlozit || p.klic, odKonce: p.odKonce || 0 };
-    });
+    // V textovych prikazech se pise bezna veta - tam se nema co nabizet.
+    if (PROZOVE.indexOf(prvni) >= 0 && k.pred.trim() !== '') return [];
+
+    // Na zacatku radku se nabizeji jen opravdove prikazy. Funkce (mocnina, delka,
+    // vezmi...) se pisi dovnitr vyrazu, jako samostatny prikaz na zacatku radku
+    // neplati - takovy navrh by cloveka jen svedl k chybe.
+    const naZacatku = k.pred.trim() === '';
+    const prikazy = ((typeof NAPOVEDA !== 'undefined' && NAPOVEDA.prikazy) || [])
+      .filter(function (p) { return !(naZacatku && p.skupina === 'Funkce'); })
+      .map(function (p) {
+        return { klic: p.klic, popis: p.popis, vlozit: p.vlozit || p.klic, odKonce: p.odKonce || 0 };
+      });
     if (f === '' && k.pred.trim() !== '') return [];
     return vyberZeSeznamu(prikazy, f, 10);
   }
@@ -272,7 +324,7 @@ const Editor = (function () {
     ta.setSelectionRange(pozice, pozice);
     zavri();
     obarvi();
-    if (zmenaCallback) zmenaCallback();
+    oznam();
   }
 
   // ------------------------------------------------------------------ udalosti
@@ -290,7 +342,7 @@ const Editor = (function () {
 
   function aktualizuj() {
     obarvi();
-    if (zmenaCallback) zmenaCallback();
+    oznam();
     autoNaseptavac();
   }
 
@@ -379,7 +431,7 @@ const Editor = (function () {
       pre.scrollTop = 0;
     },
     ziskej: function () { return ta.value; },
-    priZmene: function (fn) { zmenaCallback = fn; },
+    priZmene: function (fn) { zmenaCallbacky.push(fn); },
     zamer: function () { ta.focus(); },
     obarvi: obarvi
   };

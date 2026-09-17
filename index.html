@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CeskyWeb - pises cesky, dostanes web</title>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 <header class="horni">
@@ -12,9 +12,9 @@
   <div class="nastroje">
     <button id="btn-novy" class="tlacitko" title="Vymaze editor a zacnes psat od nuly">Novy kod</button>
     <button id="btn-zip" class="tlacitko">Stahnout ZIP</button>
-    <button id="btn-ulozit" class="tlacitko">Ulozit</button>
     <button id="btn-nahrat" class="tlacitko">Nahrat soubor</button>
     <input id="vstup-soubor" type="file" accept=".cesky,.txt,text/plain" hidden>
+    <button id="btn-bloky" class="tlacitko">Bloky</button>
     <button id="btn-napoveda" class="tlacitko">Napoveda</button>
     <button id="btn-ai" class="tlacitko">AI</button>
   </div>
@@ -39,7 +39,17 @@
   <section class="panel">
     <div class="panel-hlavicka">
       <span>Nahled stranky</span>
-      <span id="stav" class="stav">pripraveno</span>
+      <span class="panel-stav">
+        <button type="button" id="btn-upravy" class="tlacitko maly" title="Klikni na prvek v nahledu a uprav ho">Upravit v nahledu</button>
+        <span id="stav" class="stav">pripraveno</span>
+      </span>
+    </div>
+    <div class="upravy" id="upravy" hidden>
+      <span class="upravy-popis" id="upravy-popis"></span>
+      <button type="button" class="tlacitko maly" id="upravy-nahoru">Nahoru</button>
+      <button type="button" class="tlacitko maly" id="upravy-dolu">Dolu</button>
+      <button type="button" class="tlacitko maly" id="upravy-text">Prepsat text</button>
+      <button type="button" class="tlacitko maly" id="upravy-smazat">Smazat</button>
     </div>
     <iframe id="nahlad" title="Nahled stranky" sandbox="allow-scripts allow-modals allow-popups allow-forms"></iframe>
   </section>
@@ -68,12 +78,22 @@
       <button id="ai-posli" class="tlacitko hlavni" disabled>Poslat</button>
     </div>
   </aside>
+  <aside id="bloky" class="panel bloky" hidden>
+    <div class="panel-hlavicka">
+      <span>Bloky</span>
+      <button type="button" id="zavrit-bloky" class="zavrit" title="Zavrit" aria-label="Zavrit">&#10005;</button>
+    </div>
+    <p class="bloky-tip">Pretahni blok do nahledu. Klepnutim na blok ho vlozis na konec stranky.</p>
+    <div class="bloky-paleta" id="bloky-paleta"></div>
+  </aside>
 </main>
-<script src="napoveda.js?v=9"></script>
-<script src="zip.js?v=9"></script>
-<script src="prekladac.js?v=9"></script>
-<script src="editor.js?v=9"></script>
-<script src="app.js?v=9"></script>
-<script src="ai.js?v=9"></script>
+<script src="napoveda.js?v=17"></script>
+<script src="zip.js?v=17"></script>
+<script src="prekladac.js?v=17"></script>
+<script src="editor.js?v=17"></script>
+<script src="app.js?v=17"></script>
+<script src="ai.js?v=17"></script>
+<script src="blocks.js?v=17"></script>
+<script src="nahlad.js?v=17"></script>
 </body>
 </html>
